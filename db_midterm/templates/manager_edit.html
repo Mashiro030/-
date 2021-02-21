@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}管理員介面{% endblock %}
+
+{% block content %}
+
+<h1>使用說明:</h1>
+<p>刪除:只要輸入欲刪除的航班編號後點選刪除按鈕即可</p>
+<p>新增:輸入的航班編號不可和資料庫中重複，輸入所有資訊後點選新增按鈕</p>
+<p>修改:輸入的航班編號需存在於資料庫，輸入所有資訊後點選更改按鈕</p>
+
+
+
+{% if failed_notify  %}
+<div class="alert alert-danger" role="alert">
+{{ failed_notify }}
+</div>
+{% endif %}
+
+<div class="container">
+    <form method="POST">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="inputEmail4">出發地 輸入格式:桃園機場</label>
+            <input type="text" class="form-control" placeholder="國家/機場" name="departure">
+          </div>
+          <div class="form-group col-md-6">
+            <label for="inputPassword4">目的地 輸入格式:大阪機場</label>
+            <input type="text" class="form-control" id="inputPassword4" placeholder="國家/機場" name="destination">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputAddress">出發日 若使用mac os，輸入格式:2020-11-01</label>
+          <input type="date" class="form-control" id="inputAddress" placeholder="" name="start_date">
+        </div>
+        <div class="form-group">
+          <label for="inputAddress2">抵達日 若使用mac os，輸入格式:2020-11-01</label>
+          <input type="date" class="form-control" id="inputAddress2" placeholder="" name="end_date">
+        </div>
+        <button type="submit" class="btn btn-primary">查尋</button>
+    
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputEmail4">航班編號:</label>
+              <input type="text" class="form-control" name="flight_no">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="inputPassword4">公司:</label>
+              <input type="text" class="form-control" id="inputPassword4" name="edit_company">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputAddress">出發日 若使用mac os，輸入格式:2020-11-01 00:00</label>
+            <input type="text" class="form-control" id="inputAddress" placeholder="" name="edit_start_date">
+          </div>
+          <div class="form-group">
+            <label for="inputAddress2">抵達日 若使用mac os，輸入格式:2020-11-01 00:00</label>
+            <input type="text" class="form-control" id="inputAddress2" placeholder="" name="edit_end_date">
+          </div>
+          <div class="form-group">
+            <label for="inputAddress2">出發機場 輸入格式:桃園機場</label>
+            <input type="text" class="form-control" id="inputAddress2" placeholder="" name="edit_start">
+          </div>
+          <div class="form-group">
+            <label for="inputAddress2">抵達機場 輸入格式:大阪機場</label>
+            <input type="text" class="form-control" id="inputAddress2" placeholder="" name="edit_end">
+          </div>
+          <div class="form-group">
+            <label for="inputAddress2">價格: 1000</label>
+            <input type="text" class="form-control" id="inputAddress2" placeholder="" name="price">
+          </div>
+          <button type="submit" class="btn btn-primary">刪除</button>
+          <button type="submit" class="btn btn-primary">修改</button>
+          <button type="submit" class="btn btn-primary">新增</button>
+      </form>
+       
+    </div>
+
+
+
+<div class="container">
+    <h1>查詢結果:{{start}}</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <tbody>
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">航空公司</th>
+                        <th scope="col">航班編號</th>
+                        <th scope="col">起飛日期</th>
+                        <th scope="col">起飛機場</th>
+                        <th scope="col">抵達日期</th>
+                        <th scope="col">抵達機場</th>
+                        <th scope="col">價格</th>
+                    </tr>
+                </thead>
+            {% for row in test %}
+              <tr>
+                <td>{{row[0]}}</td>
+                <td>{{row[1]}}</td>
+                <td>{{row[2]}}</td>
+                <td>{{row[3]}}</td>
+                <td>{{row[4]}}</td>
+                <td>{{row[5]}}</td>
+                <td>{{row[6]}}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>
+
+{% endblock %}

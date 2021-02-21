@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}搜尋機票{% endblock %}
+
+{% block content %}
+
+<img src="../static/image/291650.jpg" width=100% height=5%>
+
+<div class="container">
+<form method="POST">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="inputEmail4">出發地:</label>
+        <input type="text" class="form-control" placeholder="國家/機場" name="departure">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="inputPassword4">目的地:</label>
+        <input type="text" class="form-control" id="inputPassword4" placeholder="國家/機場" name="destination">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="inputAddress">出發日 若使用mac os，輸入格式:2020-11-01</label>
+      <input type="date" class="form-control" id="inputAddress" placeholder="" name="start_date">
+    </div>
+    <div class="form-group">
+      <label for="inputAddress2">抵達日 若使用mac os，輸入格式:2020-11-01</label>
+      <input type="date" class="form-control" id="inputAddress2" placeholder="" name="end_date">
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label for="inputState">人數:</label>
+        <select id="inputState" class="form-control" name="passenger_num">
+          <option selected>請選擇人數</option>
+          <option>1</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">查機票</button>
+  </form>
+  
+</div>
+
+<div class="container">
+<h1>查詢結果:</h1>
+<div class="table-responsive">
+    <table class="table">
+        <tbody>
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">航空公司</th>
+                    <th scope="col">航班編號</th>
+                    <th scope="col">起飛日期</th>
+                    <th scope="col">起飛機場</th>
+                    <th scope="col">抵達日期</th>
+                    <th scope="col">抵達機場</th>
+                    <th scope="col">價格</th>
+                </tr>
+            </thead>
+        {% for row in test %}
+          <tr>
+            <td>{{row[0]}}</td>
+            <td>{{row[1]}}</td>
+            <td>{{row[2]}}</td>
+            <td>{{row[3]}}</td>
+            <td>{{row[4]}}</td>
+            <td>{{row[5]}}</td>
+            <td>${{row[6]}}</td>
+
+          </tr>
+        {% endfor %}
+         
+        </tbody>
+      </table>
+    </div>
+</div>
+
+<h1>{{ st }}</h1>
+
+{% endblock %}

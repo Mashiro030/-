@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}登機證{% endblock %}
+
+{% block content %}
+<h1>{{time}}</h1>
+    <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-light">
+      
+      <div class="col-md-5 p-lg-5 mx-auto my-5">
+        <h1 class="display-4 font-weight-normal">登機證</h1>
+        {% for row in test %}
+        <p class="lead font-weight-normal" style="text-align: left;">座位:{{row[1]}}</p>
+        <p class="lead font-weight-normal" style="text-align: left;">航廈:{{row[4]}} </p>
+        <p class="lead font-weight-normal" style="text-align: left;">登機門:{{row[2]}}</p>
+        <p class="lead font-weight-normal" style="text-align: left;">登機時間:{{row[3]}}</p>
+        <p class="lead font-weight-normal" style="text-align: left;">班機編號:{{row[8]}}</p>
+        {% endfor %}
+      </div>
+      <div class="product-device box-shadow d-none d-md-block"></div>
+      <div class="product-device product-device-2 box-shadow d-none d-md-block"></div>
+    </div>
+    <div class="container">
+        <form method="POST">
+            <label for="inputPassword4">模擬CHECK IN時，櫃台人員檢查資料，輸入pid:pid0045</label>
+            <input type="text" name="check_in">
+            <input type="submit" class="btn btn-secondary">
+        </form>
+    </div>
+
+<link href="../static/css/boarding.css" rel="stylesheet">
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}航班資訊{% endblock %}
+{% block content %}
+
+{% if failed_notify  %}
+    <div class="alert alert-danger" role="alert">
+        {{ failed_notify }}
+    </div>
+{% endif %}
+
+<div class="table-responsive">
+<table class="table">
+    <tbody>
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">是否購買</th>
+                <th scope="col">航空公司</th>
+                <th scope="col">航班編號</th>
+                <th scope="col">起飛日期</th>
+                <th scope="col">起飛機場</th>
+                <th scope="col">抵達日期</th>
+                <th scope="col">抵達機場</th>
+            </tr>
+        </thead>
+    {% for row in result %}
+      <tr>
+        <td><input type="checkbox" name='Flight_No' value="{ row[2] }"></td>
+        <td>{{row[0]}}</td>
+        <td>{{row[1]}}</td>
+        <td>{{row[2]}}</td>
+        <td>{{row[3]}}</td>
+        <td>{{row[4]}}</td>
+        <td>{{row[5]}}</td>
+      </tr>
+    {% endfor %}
+     
+    </tbody>
+  </table>
+</div>
+{{ result }}
+
+{% endblock %}
+   

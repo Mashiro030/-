@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}訂票介面{% endblock %}
+
+{% block content %}
+
+
+{% if failed_notify  %}
+    <div class="alert alert-danger" role="alert">
+        {{ failed_notify }}
+    </div>
+{% endif %}
+
+{% if success_notify %}
+<div class="alert alert-success" role="alert">
+  {{ success_notify }}
+</div>
+{% endif %}
+
+<div class="container">
+<form method="POST">
+<div class="form-row">
+    <div class="form-group col-md-6">
+        <label for="inputEmail4">航班編號</label>
+        <input type="text" class="form-control"  name="flight_number" required>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="inputEmail4">姓氏（同護照/英文半形） 例：WANG</label>
+      <input type="text" class="form-control"  name="first_name" required>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="inputPassword4">名字（同護照/英文半形） 例：XIAOMING</label>
+      <input type="text" class="form-control" id="inputPassword4"  name="last_name" required>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-6">
+        <option>請選擇性別</option>
+        <select name="sex" class="span4">
+            <option value="male">男</option>
+            <option value="female">女</option>
+       </select>
+    </div>
+
+    <div class="form-group col-md-6">
+        <label for="inputAddress2">出生日期 若使用mac os，輸入格式:2020-11-01</label>
+        <input type="date" class="form-control" id="inputAddress2" name="birthdate" required>
+    </div>
+
+    <div class="form-group col-md-6">
+        <option>請選擇艙等</option>
+        <select name="class" class="span4">
+            <option value="economy_class">經濟艙</option>
+            <option value="premium_economy_class">豪華經濟艙</option>
+            <option value="bussiness_class">商務艙</option>
+            <option value="first_class">頭等艙</option>
+       </select>
+    </div>
+
+    <div class="form-group col-md-6">
+        <option>請選擇票種</option>
+        <select name="ticket_type" class="span4">
+            <option value="traval">旅遊票</option>
+            <option value="student">學生票</option>
+            <option value="group">團體票</option>
+            <option value="discount">優惠票</option>
+       </select>
+    </div>
+
+    <div class="form-group col-md-6">
+        <option>請選擇人數</option>
+        <select name="amount" class="span4">
+            <option value="1">1</option>
+       </select>
+    </div>
+
+    <div class="form-group col-md-6">
+        <label for="inputPassword4">護照號碼（半形） 例：112345670</label>
+        <input type="text" class="form-control" id="inputPassword4"  name="passport" required>
+    </div>
+    <div class="form-group col-md-6">
+        <label for="inputPassword4">發行國家／地區</label>
+        <input type="text" class="form-control" id="inputPassword4"  name="nationality" required>
+    </div>
+    
+    <div class="form-group col-md-6">
+        <label for="inputAddress2">護照有效期限 若使用mac os，輸入格式:2020-11-01</label>
+        <input type="date" class="form-control" id="inputAddress2" name="exp_date" required>
+    </div>
+
+</div>
+  <button type="submit" class="btn btn-primary">確認訂票</button>
+</form>
+</div>
+
+{% endblock %}
