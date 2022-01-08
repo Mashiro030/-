@@ -3,21 +3,38 @@ from flask_bootstrap import Bootstrap
 from datetime import datetime,timedelta
 from flask_mail import Mail,Message
 from threading import Thread
-import cx_Oracle
+# import cx_Oracle
+# ========== for sqlite ==========
+import sqlite3
 
+from flask import g, current_app
 
+DATABASE = './db.sqlite'
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+# ========== for sqlite ==========
 
 app=Flask(__name__) # 透過__name__確定app檔案位置，方便找到其他構成app的檔案
 app.secret_key='hello' # session的key可隨意設定字串 
 app.permanent_session_lifetime=timedelta(minutes=100) #設定session能夠被儲存在server上的時間
 
-
 # conn=cx_Oracle.connect("Group6/Group666@140.117.69.58:1521/Group6",encoding="UTF-8")
 # conn=cx_Oracle.connect('Group6', 'Group666', "140.117.69.58:1521/Group6",encoding="UTF-8")
 
-tns=cx_Oracle.makedsn('140.117.69.58',1521,'orcl')
-conn=cx_Oracle.connect('Group6','Group666',tns)
+# tns=cx_Oracle.makedsn('140.117.69.58',1521,'orcl')
+# conn=cx_Oracle.connect('Group6','Group666',tns)
 # conn = cx_Oracle.connect('Group6/Group666@140.117.69.58/Group6')
+
+# ========== for sqlite ==========
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+# ========== for sqlite ==========
 
 app.config['MAIL_SERVER']='smtp.googlemail.com'
 app.config['MAIL_PORT']=587
@@ -28,6 +45,7 @@ mail=Mail(app) # 初始化flask-mail
 
 @app.route('/',methods=['POST','GET'])
 def search():
+    conn = get_db() # sqlite conn
     if request.method == 'POST':
         start=request.form['departure']
         arrive=request.form['destination']
@@ -50,6 +68,7 @@ def search():
 
 @app.route('/login',methods=['POST','GET'])
 def login():
+    conn = get_db() # sqlite conn
     if request.method=='POST':
         email=request.form['email']
         pwd=request.form['pwd'] # 抓取form.html中input text的值
@@ -79,6 +98,7 @@ def logout():
 
 @app.route('/flight')
 def info():
+    conn = get_db() # sqlite conn
     sess_user_email=session.get('user_email')
     sess_user_pwd=session.get('user_pwd')
     if sess_user_email and sess_user_pwd:
@@ -94,6 +114,7 @@ def info():
 
 @app.route('/register',methods=['POST','GET'])
 def regist():
+    conn = get_db() # sqlite conn
     if request.method=='POST':
         cursor=conn.cursor()
         name=request.form['name']
@@ -136,6 +157,7 @@ def regist():
 
 @app.route('/manager',methods=['POST','GET'])
 def manager_login():
+    conn = get_db() # sqlite conn
     if request.method=='POST':
         email=request.form['email'] # 抓取form.html中input text的值
         pwd=request.form['pwd'] 
@@ -157,6 +179,7 @@ def manager_login():
 
 @app.route('/manager_login/manager_edit',methods=['POST','GET'])
 def manager_edit():
+    conn = get_db() # sqlite conn
     sess_manager_email=session.get('manager_email')
     sess_manager_pwd=session.get('manager_pwd')
     if sess_manager_email and sess_manager_pwd:
@@ -224,6 +247,7 @@ def manager_edit():
 
 @app.route('/boardingpass',methods=['POST','GET'])
 def boarding_pass():
+    conn = get_db() # sqlite conn
     if request.method == 'POST':
         time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         pid=request.form['check_in']
@@ -240,6 +264,7 @@ def boarding_pass():
 
 @app.route('/login/booking',methods=['POST','GET'])
 def booking():
+    conn = get_db() # sqlite conn
     sess_user_email=session.get('user_email')
     sess_user_pwd=session.get('user_pwd')
     if sess_user_email and sess_user_pwd:
@@ -319,4 +344,5 @@ def interna_server_error(error):
     return render_template('500.html'),500
 
 if __name__=='__main__':
-    app.run(debug=True,threaded=True)
+    # app.run(debug=True, threaded=True)
+    app.run(debug=True)
