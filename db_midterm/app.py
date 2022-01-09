@@ -54,8 +54,15 @@ def search():
         passenger_num=request.form['passenger_num']
         if start and arrive and start_date and end_date and passenger_num:
             cursor=conn.cursor()
-            search_flight=''' SELECT * FROM FLIGHT WHERE TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') >= TO_DATE('%s','YYYY-MM-DD HH24-MI') AND TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') <= TO_DATE('%s','YYYY-MM-DD HH24-MI') AND FLIGHT_NUMBER IN (SELECT FLIGHT_NUMBER FROM FLIGHT WHERE DEPARTURE_AIRPORT LIKE '%%%s%%' 
-            AND ARRIVAL_AIRPORT LIKE '%%%s%%') ''' % (start_date,end_date,start,arrive)
+            search_flight='''
+            SELECT * FROM FLIGHT
+            WHERE TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') >= TO_DATE('%s','YYYY-MM-DD HH24-MI')
+            AND TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') <= TO_DATE('%s','YYYY-MM-DD HH24-MI')
+            AND FLIGHT_NUMBER IN (
+                SELECT FLIGHT_NUMBER FROM FLIGHT
+                WHERE DEPARTURE_AIRPORT LIKE '%%%s%%' 
+                AND ARRIVAL_AIRPORT LIKE '%%%s%%'
+            )''' % (start_date,end_date,start,arrive)
             # search_flight=''' SELECT * FROM FLIGHT WHERE DEPARTURE_AIRPORT LIKE '%%%s%%' 
             # AND ARRIVAL_AIRPORT LIKE '%%%s%%' ''' % (start,arrive)
             cursor.execute(search_flight)
@@ -74,14 +81,29 @@ def login():
         pwd=request.form['pwd'] # 抓取form.html中input text的值
         if email and pwd: # 輸入欄位不可為空
             cursor=conn.cursor()
-            check_user_db=''' SELECT * FROM USER_INFO WHERE EMAIL='%s' AND PASSWORD='%s' ''' % (email,pwd)
-            cursor.execute(check_user_db)
+            check_user_db='''
+                SELECT * FROM USER_INFO LEFT JOIN MANAGER ON USER_INFO.User_id = MANAGER.User_id
+                WHERE EMAIL='%s' AND PASSWORD='%s'
+            ''' % (email,pwd)
+            res = cursor.execute(check_user_db)
             test=cursor.fetchall()
+            print('test', test)
             cursor.close()
             if test:
                 success_notify='用戶登入成功'
                 session['user_email']=email # 運用session存值，代表該用戶確實存在於資料庫中
                 session['user_pwd']=pwd
+
+                cols = [i[0] for i in res.description]
+                test_dict = dict(zip(cols, test[0]))
+                print('dict', test_dict)
+
+                # {'User_id': 1, 'USERNAME': 'dragon', 'EMAIL': 'ddd@gmail.com', 'PASSWORD': 'dragon123', 'PASSPORT': 'dragon123', 'PERMISSION': 10}
+                
+                if test_dict.get('PERMISSION', None):
+                    session['manager_email'] = email # 運用session存值，代表該用戶確實存在於資料庫中
+                    session['manager_pwd'] = pwd
+
                 return render_template('login.html',success_notify=success_notify,failed_notify=None,test=test)
             else:
                 failed_notify='查無此用戶資訊，請先註冊帳號'
@@ -163,7 +185,9 @@ def manager_login():
         pwd=request.form['pwd'] 
         if email and pwd: # 輸入欄位不可為空
             cursor=conn.cursor()
-            check_manager_db=''' SELECT * FROM MANAGER WHERE M_EMAIL='%s' AND M_PHONE='%s' ''' % (email,pwd)
+            check_manager_db = '''
+                SELECT * FROM MANAGER NATURAL JOIN USER_INFO WHERE EMAIL='%s' AND PASSWORD='%s'
+            ''' % (email, pwd)
             cursor.execute(check_manager_db)
             test=cursor.fetchall()
             cursor.close()
