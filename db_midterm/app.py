@@ -46,6 +46,31 @@ app.config['MAIL_USERNAME']='testcodepython1126@gmail.com'
 app.config['MAIL_PASSWORD']='bhjagzxcrusbkdos'
 mail=Mail(app) # 初始化flask-mail
 
+def gen_search_flight(start_date, end_date, start, arrive):
+    search_flight = 'SELECT * FROM FLIGHT'
+    if start_date or end_date or start or arrive:
+        search_flight += ' WHERE '
+        where_query = []
+        if start_date:
+            where_query.append(''' datetime(departure_time) >= datetime('%s') '''.format(start_date))
+        if end_date:
+            where_query.append(''' datetime(departure_time) <= datetime('%s') '''.format(end_date))
+        
+        if start or arrive:
+            in_query = 'FLIGHT_NUMBER IN ( SELECT FLIGHT_NUMBER FROM FLIGHT WHERE'
+            loc_query = []
+            if start:
+                loc_query.append(''' DEPARTURE_AIRPORT LIKE '%{}%'  '''.format(start))
+            if arrive:
+                loc_query.append(''' ARRIVAL_AIRPORT LIKE '%{}%'  '''.format(arrive))
+            
+            in_query += ' AND '.join(loc_query)
+            in_query += ')'
+
+            where_query.append(in_query)
+        search_flight += ' AND '.join(where_query)
+    return search_flight
+
 @app.route('/',methods=['POST','GET'])
 def search():
     conn = get_db() # sqlite conn
@@ -78,29 +103,9 @@ def search():
             #     AND ARRIVAL_AIRPORT LIKE '%%%s%%'
             # )''' % (start_date,end_date,start,arrive)
 
-            search_flight = 'SELECT * FROM FLIGHT'
+            
             if start_date or end_date or start or arrive:
-                search_flight += ' WHERE '
-                where_query = []
-                if start_date:
-                    where_query.append(''' datetime(departure_time) >= datetime('%s') '''.format(start_date))
-                if end_date:
-                    where_query.append(''' datetime(departure_time) <= datetime('%s') '''.format(end_date))
-                
-                
-                if start or arrive:
-                    in_query = 'FLIGHT_NUMBER IN ( SELECT FLIGHT_NUMBER FROM FLIGHT WHERE'
-                    loc_query = []
-                    if start:
-                        loc_query.append(''' DEPARTURE_AIRPORT LIKE '%{}%'  '''.format(start))
-                    if arrive:
-                        loc_query.append(''' ARRIVAL_AIRPORT LIKE '%{}%'  '''.format(arrive))
-                    
-                    in_query += ' AND '.join(loc_query)
-                    in_query += ')'
-
-                    where_query.append(in_query)
-                search_flight += ' AND '.join(where_query)
+                search_flight = gen_search_flight(start_date, end_date, start, arrive)
 
             print('SQL', search_flight)
             
@@ -114,7 +119,7 @@ def search():
             cols = parse_column_headers(res)
             test = [dict(zip(cols, t)) for t in test]
             print('test', test)
-            
+
 
             if test:
                 return render_template('homepage.html',test=test)
@@ -211,7 +216,7 @@ def regist():
                 msg_title='訂票系統用戶註冊'+' To: '+ name # 主旨
                 msg_sender='testcodepython1126@gmail.com' # 寄件者
                 msg_receiver=[email] # 收件者格式為list，否則報錯
-                msg_content=name+'恭喜您完成註冊!' # 郵件內容
+                msg_content=f'{name} 恭喜您完成註冊!' # 郵件內容
                 msg=Message(msg_title,sender=msg_sender,recipients=msg_receiver)
                 msg.body=msg_content
                 # mail.send(msg) 
@@ -276,15 +281,6 @@ def manager_edit():
             # check=cursor.fetchall()
             # temp=check[0][0]
 
-            if start and arrive and start_date and end_date:
-                cursor=conn.cursor()
-                search_flight=''' SELECT * FROM FLIGHT WHERE TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') >= TO_DATE('%s','YYYY-MM-DD HH24-MI') AND TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') <= TO_DATE('%s','YYYY-MM-DD HH24-MI') AND FLIGHT_NUMBER IN (SELECT FLIGHT_NUMBER FROM FLIGHT WHERE DEPARTURE_AIRPORT LIKE '%%%s%%' 
-            AND ARRIVAL_AIRPORT LIKE '%%%s%%') ''' % (start_date,end_date,start,arrive)
-                cursor.execute(search_flight)
-                test=cursor.fetchall()
-                cursor.close()
-                if test:
-                    return render_template('manager_edit.html',test=test)
             if flight_no and edit_company=='':
                 cursor=conn.cursor()
                 delete_flight=''' DELETE FROM FLIGHT WHERE FLIGHT_NUMBER='%s' ''' % (flight_no)
@@ -311,6 +307,19 @@ def manager_edit():
                     cursor.execute(insert_flight)
                     conn.commit()
                     return render_template('manager_edit.html')
+            # if start or arrive or start_date or end_date:
+            else:
+                cursor=conn.cursor()
+                search_flight = gen_search_flight(start_date, end_date, start,arrive)
+                res = cursor.execute(search_flight)
+                test=cursor.fetchall()
+                cursor.close()
+
+                cols = parse_column_headers(res)
+                test = [dict(zip(cols, t)) for t in test]
+
+                if test:
+                    return render_template('manager_edit.html',test=test)
                 
     else:
         failed_notify='請先登入管理員'
@@ -404,7 +413,7 @@ def booking():
                 return render_template('user_booking.html',failed_notify=failed_notify)       
     else:
         failed_notify='請先用戶登錄在進行訂票'
-        return render_template('login.html',failed_notify=failed_notify)
+        return render_template('login.html', failed_notify=failed_notify)
     return render_template('user_booking.html')
 
 @app.errorhandler(404) # request錯誤的路徑

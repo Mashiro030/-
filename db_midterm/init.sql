@@ -5,11 +5,11 @@ DROP TABLE IF EXISTS FLIGHT;
 DROP TABLE IF EXISTS BORADINGPASS;
 
 CREATE TABLE USER_INFO (
-    User_id INTEGER UNIQUE NOT NULL,
-	USERNAME string PRIMARY KEY,
-   	EMAIL string,
-	PASSWORD string,
-    PASSPORT string
+    User_id INTEGER PRIMARY KEY,
+	USERNAME VARCHAR(30),
+   	EMAIL VARCHAR(30),
+	PASSWORD VARCHAR(30),
+    PASSPORT VARCHAR(30)
 );
 
 CREATE TABLE MANAGER (
@@ -19,27 +19,39 @@ CREATE TABLE MANAGER (
 );
 
 CREATE TABLE BOOKING(
-	book_id     CHAR(20)     NOT NULL,
-	fight_id     CHAR(20)     NOT NULL,
+	book_id     INTEGER PRIMARY KEY,
+	flight_number     CHAR(20)     NOT NULL,
 	User_id     INTEGER     NOT NULL,
-	PRIMARY KEY (book_id),
+	p_firstname  CHAR(20),
+	p_lastname  CHAR(20),
+	country  CHAR(20),
+	p_passport  CHAR(20),
+	p_class CHAR(20),
+	ticket_type CHAR(20),
+	gender CHAR(20),
+	birthdate DATE,
+	expdate DATE,
 	FOREIGN KEY (User_id) REFERENCES User(User_id)
+	FOREIGN KEY (flight_number) REFERENCES FLIGHT(flight_number)
 );
 
+-- CREATE TABLE RECORD {
+	
+-- }
+
 CREATE TABLE FLIGHT(
-	flight_number     INTEGER   UNIQUE NOT NULL,
+	flight_number     INTEGER PRIMARY KEY,
 	date     DATE    NOT NULL,
 	company     VARCHAR(20)     NOT NULL,
 	arrival_time     DATETIME     NOT NULL,
 	departure_time     DATETIME     NOT NULL,
     departure_airport CHAR(20) NOT NULL,
     arrival_airport CHAR(20) NOT NULL,
-    price INTEGER NOT NULL,
-	PRIMARY KEY (flight_number)
+    price INTEGER NOT NULL
 );
 
 CREATE TABLE BORADINGPASS(
-	ticket_id     INTEGER     UNIQUE NOT NULL,
+	ticket_id     INTEGER PRIMARY KEY,
 	seat_number     VARCHAR(10)    NOT NULL,
 	boarding_gate     VARCHAR(10)     NOT NULL,
 	boarding_time     DATETIME     NOT NULL,
@@ -47,7 +59,6 @@ CREATE TABLE BORADINGPASS(
 	Pid     CHAR(20)     NOT NULL,
 	p_name     VARCHAR(20)     NOT NULL, 
 	flight_number     INTEGER     NOT NULL,
-	PRIMARY KEY (ticket_id),
 	FOREIGN KEY (Pid) REFERENCES USER_INFO(User_id),
 	FOREIGN KEY (flight_number) REFERENCES Flight(flight_number)
 );

@@ -46,26 +46,25 @@
         <tbody>
             <thead class="thead-dark">
                 <tr>
-                    <th scope="col">航空公司</th>
-                    <th scope="col">航班編號</th>
-                    <th scope="col">起飛日期</th>
-                    <th scope="col">起飛機場</th>
-                    <th scope="col">抵達日期</th>
-                    <th scope="col">抵達機場</th>
-                    <th scope="col">價格</th>
+                  <th scope="col">航班編號</th>
+                  <th scope="col">航空公司</th>
+                  <th scope="col">起飛日期</th>
+                  <th scope="col">起飛機場</th>
+                  <th scope="col">抵達日期</th>
+                  <th scope="col">抵達機場</th>
+                  <th scope="col">價格</th>
                 </tr>
             </thead>
         {% for f in test %}
         <!-- {'flight_number': 3, 'date': '2022/01/15', 'company': '中華航空', 'arrival_time': '2022-01-09 08:00:00', 'departure_time': '2022-01-09 09:55:00', 'departure_airport': '台北 (TPE)', 'arrival_airport': '香港 (HKG)'} -->
           <tr>
-            <td>{{ f.company }}</td>
             <td>{{ f.flight_number }}</td>
+            <td>{{ f.company }}</td>
             <td>{{ f.departure_time }}</td>
             <td>{{ f.departure_airport }}</td>
             <td>{{ f.arrival_time }}</td>
             <td>{{ f.arrival_airport }}</td>
             <td>{{ f.price }}</td>
-
           </tr>
         {% endfor %}
          
