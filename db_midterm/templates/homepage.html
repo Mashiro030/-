@@ -55,15 +55,16 @@
                     <th scope="col">價格</th>
                 </tr>
             </thead>
-        {% for row in test %}
+        {% for f in test %}
+        <!-- {'flight_number': 3, 'date': '2022/01/15', 'company': '中華航空', 'arrival_time': '2022-01-09 08:00:00', 'departure_time': '2022-01-09 09:55:00', 'departure_airport': '台北 (TPE)', 'arrival_airport': '香港 (HKG)'} -->
           <tr>
-            <td>{{row[0]}}</td>
-            <td>{{row[1]}}</td>
-            <td>{{row[2]}}</td>
-            <td>{{row[3]}}</td>
-            <td>{{row[4]}}</td>
-            <td>{{row[5]}}</td>
-            <td>${{row[6]}}</td>
+            <td>{{ f.company }}</td>
+            <td>{{ f.flight_number }}</td>
+            <td>{{ f.departure_time }}</td>
+            <td>{{ f.departure_airport }}</td>
+            <td>{{ f.arrival_time }}</td>
+            <td>{{ f.arrival_airport }}</td>
+            <td>{{ f.price }}</td>
 
           </tr>
         {% endfor %}

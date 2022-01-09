@@ -15,6 +15,9 @@ def get_db():
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
     return db
+
+def parse_column_headers(res):
+    return [r[0] for r in res.description]
 # ========== for sqlite ==========
 
 app=Flask(__name__) # 透過__name__確定app檔案位置，方便找到其他構成app的檔案
@@ -52,22 +55,67 @@ def search():
         start_date=request.form['start_date']
         end_date=request.form['end_date']
         passenger_num=request.form['passenger_num']
-        if start and arrive and start_date and end_date and passenger_num:
+        # if start and arrive and start_date and end_date and passenger_num:
+        if True:
             cursor=conn.cursor()
-            search_flight='''
-            SELECT * FROM FLIGHT
-            WHERE TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') >= TO_DATE('%s','YYYY-MM-DD HH24-MI')
-            AND TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') <= TO_DATE('%s','YYYY-MM-DD HH24-MI')
-            AND FLIGHT_NUMBER IN (
-                SELECT FLIGHT_NUMBER FROM FLIGHT
-                WHERE DEPARTURE_AIRPORT LIKE '%%%s%%' 
-                AND ARRIVAL_AIRPORT LIKE '%%%s%%'
-            )''' % (start_date,end_date,start,arrive)
+            # search_flight='''
+            # SELECT * FROM FLIGHT
+            # WHERE TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') >= TO_DATE('%s','YYYY-MM-DD HH24-MI')
+            # AND TO_DATE(DEPARTURE_DATE,'YYYY-MM-DD HH24-MI') <= TO_DATE('%s','YYYY-MM-DD HH24-MI')
+            # AND FLIGHT_NUMBER IN (
+            #     SELECT FLIGHT_NUMBER FROM FLIGHT
+            #     WHERE DEPARTURE_AIRPORT LIKE '%%%s%%' 
+            #     AND ARRIVAL_AIRPORT LIKE '%%%s%%'
+            # )''' % (start_date,end_date,start,arrive)
+
+            # search_flight='''
+            # SELECT * FROM FLIGHT
+            # WHERE datetime(departure_time) >= datetime('%s')
+            # AND datetime(departure_time) <= datetime('%s')
+            # AND FLIGHT_NUMBER IN (
+            #     SELECT FLIGHT_NUMBER FROM FLIGHT
+            #     WHERE DEPARTURE_AIRPORT LIKE '%%%s%%'  
+            #     AND ARRIVAL_AIRPORT LIKE '%%%s%%'
+            # )''' % (start_date,end_date,start,arrive)
+
+            search_flight = 'SELECT * FROM FLIGHT'
+            if start_date or end_date or start or arrive:
+                search_flight += ' WHERE '
+                where_query = []
+                if start_date:
+                    where_query.append(''' datetime(departure_time) >= datetime('%s') '''.format(start_date))
+                if end_date:
+                    where_query.append(''' datetime(departure_time) <= datetime('%s') '''.format(end_date))
+                
+                
+                if start or arrive:
+                    in_query = 'FLIGHT_NUMBER IN ( SELECT FLIGHT_NUMBER FROM FLIGHT WHERE'
+                    loc_query = []
+                    if start:
+                        loc_query.append(''' DEPARTURE_AIRPORT LIKE '%{}%'  '''.format(start))
+                    if arrive:
+                        loc_query.append(''' ARRIVAL_AIRPORT LIKE '%{}%'  '''.format(arrive))
+                    
+                    in_query += ' AND '.join(loc_query)
+                    in_query += ')'
+
+                    where_query.append(in_query)
+                search_flight += ' AND '.join(where_query)
+
+            print('SQL', search_flight)
+            
             # search_flight=''' SELECT * FROM FLIGHT WHERE DEPARTURE_AIRPORT LIKE '%%%s%%' 
             # AND ARRIVAL_AIRPORT LIKE '%%%s%%' ''' % (start,arrive)
-            cursor.execute(search_flight)
+            res = cursor.execute(search_flight)
             test=cursor.fetchall()
+            # print('test', test)
             cursor.close()
+
+            cols = parse_column_headers(res)
+            test = [dict(zip(cols, t)) for t in test]
+            print('test', test)
+            
+
             if test:
                 return render_template('homepage.html',test=test)
                 # AND ARRIVAL_AIRPORT LIKE '%%%s%%' DEPARTURE_DATE LIKE '%%%s%%' AND END_DATE LIKE '%%%s%%' ,arrive,start_date,end_date
@@ -94,7 +142,7 @@ def login():
                 session['user_email']=email # 運用session存值，代表該用戶確實存在於資料庫中
                 session['user_pwd']=pwd
 
-                cols = [i[0] for i in res.description]
+                cols = parse_column_headers(res)
                 test_dict = dict(zip(cols, test[0]))
                 print('dict', test_dict)
 
