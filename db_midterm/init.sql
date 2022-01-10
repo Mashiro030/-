@@ -72,6 +72,10 @@ VALUES
     (2, 'dragon_guest', 'ddd2@gmail.com', 'dragon456', 'dragon456'),
 	(3, 'guest', 'paravex462@vinopub.com', 'guest', 'guest123');
 
+-- INSERT INTO USER_INFO (User_id, USERNAME, EMAIL, PASSWORD, PASSPORT)
+-- VALUES
+--     (5, 'guest2', 'harot59152@veb34.com', 'guest123', 'guest123');
+
 INSERT INTO MANAGER (User_id, PERMISSION)
 VALUES
     (1, 10);
@@ -88,3 +92,22 @@ VALUES
     (4, '2022/01/15', '中華航空', '2022-01-09 10:15:00', '2022-01-09 13:20:00', '台北 (TPE)', '曼谷 (BKK)', 4500),
     (5, '2022/01/15', '長榮航空', '2022-01-09 15:30:00', '2022-01-09 20:00:00', '台北 (TPE)', '新加坡 (SIN)', 8000),
     (6, '2022/01/15', '中華航空', '2022-01-09 18:00:00', '2022-01-09 19:00:00', '台北 (TPE)', '香港 (HKG)', 2000);
+
+-- insert booking
+INSERT INTO BOOKING (
+    flight_number, User_id, p_firstname, p_lastname, country,
+	p_passport, p_class, ticket_type, gender, birthdate, expdate
+)
+VALUES
+    (
+		1, 5, 'CHIU', ' CHAO-MIN', 'TW',
+		'112345670', 'bussiness_class', 'traval', 'male', '2022-01-03', '2022-01-20'
+	);
+
+INSERT INTO BOARDINGPASS (
+    seat_number, boarding_gate, boarding_time, terminal, Pid, flight_number
+)
+VALUES
+    (
+		'46A', 'D4/19', '2022-01-09 07:40:00', 'T1', 1, 1
+	);

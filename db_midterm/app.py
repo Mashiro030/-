@@ -327,18 +327,46 @@ def manager_edit():
 @app.route('/record',methods=['GET'])
 def show_record():
     conn = get_db() # sqlite conn
-    
     sess_user_email = session.get('user_email')
-    pid = 1
-    query = ''' SELECT * FROM BOARDINGPASS WHERE PID='%s' ''' % (pid)
-    cursor = conn.cursor()
-    res = cursor.execute(query)
-    result = cursor.fetchall()
-    cols = parse_column_headers(res)
-    result = [dict(zip(cols, r)) for r in result]
-    print('result', result)
 
-    return render_template('record.html', result=result)
+    if sess_user_email:
+        pid = request.values.get('pid')
+        print('record pid', pid)
+        query = '''
+        SELECT * FROM BOARDINGPASS as board JOIN BOOKING as book JOIN USER_INFO as u
+        ON board.Pid = book.book_id AND book.User_id = u.User_id
+        WHERE EMAIL='%s'
+        ''' % (sess_user_email)
+        cursor = conn.cursor()
+        res = cursor.execute(query)
+        result = cursor.fetchall()
+        cols = parse_column_headers(res)
+        result = [dict(zip(cols, r)) for r in result]
+        print('result', result)
+
+        return render_template('record.html', result=result)
+    else:
+        return redirect('/login')
+
+@app.route('/show_all_record',methods=['GET'])
+def show_all_record():
+    conn = get_db() # sqlite conn
+
+    sess_manager_email=session.get('manager_email')
+    sess_manager_pwd=session.get('manager_pwd')
+    if sess_manager_email and sess_manager_pwd:
+        all_record = ''' SELECT * FROM BOARDINGPASS '''
+        cursor=conn.cursor()
+        res = cursor.execute(all_record)
+        result = cursor.fetchall()
+
+        cols = parse_column_headers(res)
+        result = [dict(zip(cols, r)) for r in result]
+        
+        return render_template('show_all_record.html', result=result)
+    else:
+        failed_notify='請先登入管理員'
+        return redirect('/login')
 
 @app.route('/boardingpass',methods=['POST','GET'])
 def boarding_pass():
@@ -421,12 +449,13 @@ def booking():
                 cursor.execute(update_flight)
                 conn.commit()
 
-                # cursor=conn.cursor()
-                # get_pid = ''' SELECT ticket_id FROM BOOKING '''
-                # cursor.execute(update_flight)
-                # temp_pid = cursor.fetchall()
-                # conn.commit()
-                temp_pid = [[1]]
+                cursor=conn.cursor()
+                get_pid = ''' SELECT book_id FROM BOOKING ORDER BY book_id DESC'''
+                cursor.execute(get_pid)
+                temp_pid = cursor.fetchall()
+                print('pid', temp_pid[0][0])
+                conn.commit()
+                # temp_pid = [[1]]
 
                 cursor=conn.cursor()
                 insert_record=''' INSERT INTO RECORD(TRANSACTION_TIME,PID,SALE_PRICE) VALUES('%s','%s','%s') ''' % (time,temp_pid[0][0],temp_price[0][0])
@@ -439,7 +468,7 @@ def booking():
                 boarding_gate = random.sample(['D4/19', 'C7/19', 'B5'], 1)[0]
                 print('check', check)
                 boarding_time = check[0][3] # grab from FLIGHT table
-                Pid = 1
+                Pid = temp_pid
                 # flight_number = flight_number
 
                 cursor=conn.cursor()
@@ -447,7 +476,7 @@ def booking():
                 INSERT INTO BOARDINGPASS (
                     seat_number, terminal, boarding_gate, boarding_time, Pid, flight_number
                 ) VALUES('{}','{}','{}','{}','{}','{}') '''.format(
-                    seat_number, terminal, boarding_gate, boarding_time, Pid, flight_number
+                    seat_number, terminal, boarding_gate, boarding_time, temp_pid[0][0], flight_number
                 )
                 print('SQL', insert_record)
                 cursor.execute(insert_record)
