@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}航班資訊{% endblock %}
+{% block content %}
+
+{% if failed_notify  %}
+    <div class="alert alert-danger" role="alert">
+        {{ failed_notify }}
+    </div>
+{% endif %}
+
+<!-- <script type="text/javascript" src="/static/js/instascan.min.js"></script> -->
+<script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+
+<div class="container">
+  <div class="mr-auto" style="display: flex; justify-content: center;">
+    <video id="preview"></video>
+  </div>
+
+  <div class="container">
+    <form method="POST" style="display: flex; flex-direction: column; align-items: center;">
+        <p><label for="inputPassword4">模擬 CHECK IN，櫃台人員掃描機票 QRcode 檢查資料</label></p>
+        <p>PID: <input type="text" id="pid" name="pid"></p>
+        <p><input type="submit" class="btn btn-secondary"></p>
+    </form>
+</div>
+</div>
+
+<script type="text/javascript">
+  let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+  scanner.addListener('scan', function (content) {
+    console.log(content);
+    alert(`偵測到乘客 pid=${content}`);
+    document.getElementById('pid').value = content;
+  });
+  Instascan.Camera.getCameras().then(function (cameras) {
+    if (cameras.length > 0) {
+      scanner.start(cameras[0]);
+    } else {
+      console.error('No cameras found.');
+    }
+  }).catch(function (e) {
+    console.error(e);
+  });
+</script>
+
+{% endblock %}
+   

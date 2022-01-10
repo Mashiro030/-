@@ -45,13 +45,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/record">訂票紀錄</a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="nav-link" href="/boardingpass">登機證</a>
-                </li>
+                </li> -->
 
                 {% if session['manager_email'] %}
+                <div style="width: 3px; background-color: rgb(100, 100, 100);"></div>
                 <li class="nav-item">
-                    <a class="nav-link" href="/manager_login/manager_edit">管理員訂單管理</a>
+                    <a class="nav-link" href="/manager_login/manager_edit">編輯航班</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/boardingpass_check">檢查登機證</a>
                 </li>
                 {% endif %}
 

@@ -22,6 +22,7 @@
                 <th scope="col">航廈</th>
                 <th scope="col">Pid</th>
                 <th scope="col">航班號碼</th>
+                <th scope="col">登機證</th>
             </tr>
         </thead>
     {% for r in result %}
@@ -31,8 +32,9 @@
         <td>{{ r.boarding_gate }}</td>
         <td>{{ r.boarding_time }}</td>
         <td>{{ r.terminal }}</td>
-        <td>1</td>
+        <td>{{ r.Pid  }}</td>
         <td>{{ r.flight_number }}</td>
+        <td><a href="/boardingpass?pid={{r.Pid}}">Click</td>
       </tr>
     {% endfor %}
      

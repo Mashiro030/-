@@ -288,20 +288,20 @@ def manager_edit():
                 return render_template('manager_edit.html')
             if flight_no and edit_company and edit_start_date and edit_end_date and edit_start and edit_end and price:
                 flight_no=request.form['flight_no']
-                check_flight_no=''' SELECT COUNT(*) FROM FLIGHT WHERE FLIGHT_NUMBER='%s' AND ROWNUM = 1 '''  % str(flight_no)
+                check_flight_no=''' SELECT COUNT(*) FROM FLIGHT WHERE FLIGHT_NUMBER='%s' '''  % str(flight_no)
                 cursor=conn.cursor()
                 cursor.execute(check_flight_no)
                 check=cursor.fetchall()
                 if check[0][0]==1:
                     cursor=conn.cursor()              
-                    update_flight=''' UPDATE FLIGHT SET COMPANY='%s',DEPARTURE_DATE='%s',ARRIVAL_DATE='%s',DEPARTURE_AIRPORT='%s',ARRIVAL_AIRPORT='%s',PRICE='%s' WHERE FLIGHT_NUMBER='%s' ''' % (edit_company,edit_start_date,edit_end_date,edit_start,edit_end,price,flight_no)
+                    update_flight=''' UPDATE FLIGHT SET COMPANY='%s',DEPARTURE_TIME='%s',ARRIVAL_TIME='%s',DEPARTURE_AIRPORT='%s',ARRIVAL_AIRPORT='%s',PRICE='%s' WHERE FLIGHT_NUMBER='%s' ''' % (edit_company,edit_start_date,edit_end_date,edit_start,edit_end,price,flight_no)
                     cursor.execute(update_flight)
                     conn.commit()
                     return render_template('manager_edit.html')
                 # if flight_no and edit_company and edit_start_date and edit_end_date and edit_start and edit_end and price and check[0][0]==0:
                 if check[0][0]==0:   
                     cursor=conn.cursor()
-                    insert_flight=''' INSERT INTO FLIGHT(COMPANY,FLIGHT_NUMBER,DEPARTURE_DATE,DEPARTURE_AIRPORT,ARRIVAL_DATE,ARRIVAL_AIRPORT,PRICE) VALUES('%s','%s','%s','%s','%s','%s','%s') ''' % (edit_company,flight_no,edit_start_date,edit_start,edit_end_date,edit_end,price)
+                    insert_flight=''' INSERT INTO FLIGHT(COMPANY,FLIGHT_NUMBER,DEPARTURE_TIME,DEPARTURE_AIRPORT,ARRIVAL_TIME,ARRIVAL_AIRPORT,PRICE) VALUES('%s','%s','%s','%s','%s','%s','%s') ''' % (edit_company,flight_no,edit_start_date,edit_start,edit_end_date,edit_end,price)
                     cursor.execute(insert_flight)
                     conn.commit()
                     return render_template('manager_edit.html')
@@ -363,11 +363,19 @@ def boarding_pass():
     cols = parse_column_headers(res)
     test = [dict(zip(cols, t)) for t in test]
     print('test', test)
-    if len(test) > 1:
+    if len(test) > 0:
         test = test[0]
     print('test', test)
 
     return render_template('boarding_pass.html', test=test)
+
+@app.route('/boardingpass_check', methods=['GET', 'POST'])
+def boardingpass_check():
+    conn = get_db()
+    if request.method == 'POST':
+        pid = request.form['pid']
+
+    return render_template('boardingpass_check.html')
 
 @app.route('/login/booking',methods=['POST','GET'])
 def booking():
@@ -401,7 +409,7 @@ def booking():
             # get_pid=''' SELECT PID FROM BOOKING WHERE USER_ID='%s' ''' % (temp_uid[0][0])
             # cursor.execute(get_pid)
             # temp_pid=cursor.fetchall()
-            temp_pid = [[1]]
+            # temp_pid = temp_uid
 
             get_price=''' SELECT PRICE FROM FLIGHT WHERE FLIGHT_NUMBER='%s' ''' % (str(flight_number))
             cursor.execute(get_price)
@@ -412,6 +420,13 @@ def booking():
                 update_flight=''' INSERT INTO BOOKING(P_FIRSTNAME,P_LASTNAME,COUNTRY,P_PASSPORT,P_CLASS,USER_ID,TICKET_TYPE,GENDER,BIRTHDATE,EXPDATE,FLIGHT_NUMBER) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s') ''' % (first_name,last_name,nationality,passport,p_class,temp_uid[0][0],ticket_type,sex,birthdate,exp_date,flight_number)
                 cursor.execute(update_flight)
                 conn.commit()
+
+                # cursor=conn.cursor()
+                # get_pid = ''' SELECT ticket_id FROM BOOKING '''
+                # cursor.execute(update_flight)
+                # temp_pid = cursor.fetchall()
+                # conn.commit()
+                temp_pid = [[1]]
 
                 cursor=conn.cursor()
                 insert_record=''' INSERT INTO RECORD(TRANSACTION_TIME,PID,SALE_PRICE) VALUES('%s','%s','%s') ''' % (time,temp_pid[0][0],temp_price[0][0])

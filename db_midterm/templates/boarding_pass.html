@@ -13,7 +13,11 @@
         <p class="lead font-weight-normal" style="text-align: left;">登機門:{{ test.boarding_gate }}</p>
         <p class="lead font-weight-normal" style="text-align: left;">登機時間:{{ test.boarding_time }}</p>
         <p class="lead font-weight-normal" style="text-align: left;">班機編號:{{ test.flight_number }}</p>
+        {% if test.Pid == 1 : %}
         <img src="../static/image/pid.png" />
+        {% else %}
+        <img src="../static/image/pid2.png" />
+        {% endif %}
       </div>
       <div class="product-device box-shadow d-none d-md-block"></div>
       <div class="product-device product-device-2 box-shadow d-none d-md-block"></div>
