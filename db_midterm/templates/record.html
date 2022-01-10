@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}航班資訊{% endblock %}
+{% block content %}
+
+{% if failed_notify  %}
+    <div class="alert alert-danger" role="alert">
+        {{ failed_notify }}
+    </div>
+{% endif %}
+
+<!-- result [{'ticket_id': 1, 'seat_number': '1A', 'boarding_gate': 'C7/19', 'boarding_time': '2022-01-09 07:35:00', 'terminal': 'T2', 'Pid': '1', 'flight_number': 1}] -->
+
+<div class="table-responsive">
+<table class="table">
+    <tbody>
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">機票號碼</th>
+                <th scope="col">座位號碼</th>
+                <th scope="col">登機門</th>
+                <th scope="col">起飛日期時間</th>
+                <th scope="col">航廈</th>
+                <th scope="col">Pid</th>
+                <th scope="col">航班號碼</th>
+            </tr>
+        </thead>
+    {% for r in result %}
+      <tr>
+        <td>{{ r.ticket_id }}</td>
+        <td>{{ r.seat_number }}</td>
+        <td>{{ r.boarding_gate }}</td>
+        <td>{{ r.boarding_time }}</td>
+        <td>{{ r.terminal }}</td>
+        <td>1</td>
+        <td>{{ r.flight_number }}</td>
+      </tr>
+    {% endfor %}
+     
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+   

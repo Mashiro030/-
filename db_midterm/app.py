@@ -180,7 +180,7 @@ def info():
         cursor.execute(search_flight)
         result=cursor.fetchall()
         cursor.close()
-        return render_template('flight_info.html',result=result)
+        return render_template('flight_info.html', result=result)
     else:
         failed_notify='請先登入再做查詢'
         return render_template('login.html',failed_notify=failed_notify)
@@ -324,22 +324,50 @@ def manager_edit():
         return render_template('manager_login.html',failed_notify=failed_notify)
     return render_template('manager_edit.html')
 
+@app.route('/record',methods=['GET'])
+def show_record():
+    conn = get_db() # sqlite conn
+    
+    sess_user_email = session.get('user_email')
+    pid = 1
+    query = ''' SELECT * FROM BOARDINGPASS WHERE PID='%s' ''' % (pid)
+    cursor = conn.cursor()
+    res = cursor.execute(query)
+    result = cursor.fetchall()
+    cols = parse_column_headers(res)
+    result = [dict(zip(cols, r)) for r in result]
+    print('result', result)
+
+    return render_template('record.html', result=result)
+
 @app.route('/boardingpass',methods=['POST','GET'])
 def boarding_pass():
     conn = get_db() # sqlite conn
-    if request.method == 'POST':
-        time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        pid=request.form['check_in']
-        query=''' SELECT * FROM BOARDINGPASS WHERE PID='%s' ''' % (pid)
-        cursor=conn.cursor()
-        cursor.execute(query)
-        test=cursor.fetchall()
-        cursor.close()
-        if test:
-            return render_template('boarding_pass.html',test=test,time=time)
-    return render_template('boarding_pass.html')
-    
+    pid = request.values.get('pid')
+    print('pid', pid)
+    # if request.method == 'POST':
+    #     time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    #     pid=request.form['check_in']
+    #     query=''' SELECT * FROM BOARDINGPASS WHERE PID='%s' ''' % (pid)
+    #     cursor=conn.cursor()
+    #     cursor.execute(query)
+    #     test=cursor.fetchall()
+    #     cursor.close()
+    #     if test:
+    #         return render_template('boarding_pass.html',test=test,time=time)
+    query=''' SELECT * FROM BOARDINGPASS WHERE PID='%s' ''' % (pid)
+    cursor=conn.cursor()
+    res = cursor.execute(query)
+    test=cursor.fetchall()
 
+    cols = parse_column_headers(res)
+    test = [dict(zip(cols, t)) for t in test]
+    print('test', test)
+    if len(test) > 1:
+        test = test[0]
+    print('test', test)
+
+    return render_template('boarding_pass.html', test=test)
 
 @app.route('/login/booking',methods=['POST','GET'])
 def booking():
