@@ -1,4 +1,4 @@
-from flask import Flask,request,Response,redirect,render_template,request,url_for,session,flash,Blueprint
+from flask import Flask,request,Response,redirect,render_template,request,url_for,session,flash,Blueprint, redirect
 from flask_bootstrap import Bootstrap
 from datetime import datetime,timedelta
 from flask_mail import Mail,Message
@@ -104,10 +104,8 @@ def search():
             # )''' % (start_date,end_date,start,arrive)
 
             
-            if start_date or end_date or start or arrive:
-                search_flight = gen_search_flight(start_date, end_date, start, arrive)
+            search_flight = gen_search_flight(start_date, end_date, start, arrive)
 
-            print('SQL', search_flight)
             
             # search_flight=''' SELECT * FROM FLIGHT WHERE DEPARTURE_AIRPORT LIKE '%%%s%%' 
             # AND ARRIVAL_AIRPORT LIKE '%%%s%%' ''' % (start,arrive)
@@ -332,7 +330,7 @@ def boarding_pass():
     if request.method == 'POST':
         time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         pid=request.form['check_in']
-        query=''' SELECT * FROM BORADINGPASS WHERE PID='%s' ''' % (pid)
+        query=''' SELECT * FROM BOARDINGPASS WHERE PID='%s' ''' % (pid)
         cursor=conn.cursor()
         cursor.execute(query)
         test=cursor.fetchall()
@@ -372,9 +370,10 @@ def booking():
             cursor.execute(get_user_id)
             temp_uid=cursor.fetchall()
 
-            get_pid=''' SELECT PID FROM BOOKING WHERE USER_ID='%s' ''' % (temp_uid[0][0])
-            cursor.execute(get_pid)
-            temp_pid=cursor.fetchall()
+            # get_pid=''' SELECT PID FROM BOOKING WHERE USER_ID='%s' ''' % (temp_uid[0][0])
+            # cursor.execute(get_pid)
+            # temp_pid=cursor.fetchall()
+            temp_pid = [[1]]
 
             get_price=''' SELECT PRICE FROM FLIGHT WHERE FLIGHT_NUMBER='%s' ''' % (str(flight_number))
             cursor.execute(get_price)
@@ -389,6 +388,27 @@ def booking():
                 cursor=conn.cursor()
                 insert_record=''' INSERT INTO RECORD(TRANSACTION_TIME,PID,SALE_PRICE) VALUES('%s','%s','%s') ''' % (time,temp_pid[0][0],temp_price[0][0])
                 cursor.execute(insert_record)
+
+                # add to boardingpass
+                import random
+                seat_number = random.sample(['1A', '1B', '46A'], 1)[0]
+                terminal = random.sample(['T1', 'T2'], 1)[0]
+                boarding_gate = random.sample(['D4/19', 'C7/19', 'B5'], 1)[0]
+                print('check', check)
+                boarding_time = check[0][3] # grab from FLIGHT table
+                Pid = 1
+                # flight_number = flight_number
+
+                cursor=conn.cursor()
+                insert_record='''
+                INSERT INTO BOARDINGPASS (
+                    seat_number, terminal, boarding_gate, boarding_time, Pid, flight_number
+                ) VALUES('{}','{}','{}','{}','{}','{}') '''.format(
+                    seat_number, terminal, boarding_gate, boarding_time, Pid, flight_number
+                )
+                print('SQL', insert_record)
+                cursor.execute(insert_record)
+
                 conn.commit()
                 # cursor.close()
 
@@ -413,7 +433,9 @@ def booking():
                 return render_template('user_booking.html',failed_notify=failed_notify)       
     else:
         failed_notify='請先用戶登錄在進行訂票'
-        return render_template('login.html', failed_notify=failed_notify)
+        # return render_template('login.html', failed_notify=failed_notify)
+        # return render_template('login.html', failed_notify=failed_notify)
+        return redirect('/login')
     return render_template('user_booking.html')
 
 @app.errorhandler(404) # request錯誤的路徑
@@ -423,6 +445,11 @@ def page_not_found(error):
 @app.errorhandler(500) # 未知的app錯誤
 def interna_server_error(error):
     return render_template('500.html'),500
+
+# pwa
+@app.route('/manifest.json')
+def manifest():
+    return app.send_from_directory('static', 'manifest.json')
 
 if __name__=='__main__':
     # app.run(debug=True, threaded=True)

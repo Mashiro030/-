@@ -1,8 +1,9 @@
 DROP TABLE IF EXISTS USER_INFO;
 DROP TABLE IF EXISTS MANAGER;
 DROP TABLE IF EXISTS BOOKING;
+DROP TABLE IF EXISTS RECORD;
 DROP TABLE IF EXISTS FLIGHT;
-DROP TABLE IF EXISTS BORADINGPASS;
+DROP TABLE IF EXISTS BOARDINGPASS;
 
 CREATE TABLE USER_INFO (
     User_id INTEGER PRIMARY KEY,
@@ -35,9 +36,11 @@ CREATE TABLE BOOKING(
 	FOREIGN KEY (flight_number) REFERENCES FLIGHT(flight_number)
 );
 
--- CREATE TABLE RECORD {
-	
--- }
+CREATE TABLE RECORD (
+	TRANSACTION_TIME DATETIME,
+	PID INTEGER,
+	SALE_PRICE INTEGER
+);
 
 CREATE TABLE FLIGHT(
 	flight_number     INTEGER PRIMARY KEY,
@@ -50,14 +53,13 @@ CREATE TABLE FLIGHT(
     price INTEGER NOT NULL
 );
 
-CREATE TABLE BORADINGPASS(
+CREATE TABLE BOARDINGPASS(
 	ticket_id     INTEGER PRIMARY KEY,
 	seat_number     VARCHAR(10)    NOT NULL,
 	boarding_gate     VARCHAR(10)     NOT NULL,
 	boarding_time     DATETIME     NOT NULL,
 	terminal     VARCHAR(20)     NOT NULL,  
 	Pid     CHAR(20)     NOT NULL,
-	p_name     VARCHAR(20)     NOT NULL, 
 	flight_number     INTEGER     NOT NULL,
 	FOREIGN KEY (Pid) REFERENCES USER_INFO(User_id),
 	FOREIGN KEY (flight_number) REFERENCES Flight(flight_number)
@@ -67,7 +69,8 @@ CREATE TABLE BORADINGPASS(
 INSERT INTO USER_INFO (User_id, USERNAME, EMAIL, PASSWORD, PASSPORT)
 VALUES
     (1, 'dragon', 'ddd@gmail.com', 'dragon123', 'dragon123'),
-    (2, 'dragon_guest', 'ddd2@gmail.com', 'dragon456', 'dragon456');
+    (2, 'dragon_guest', 'ddd2@gmail.com', 'dragon456', 'dragon456'),
+	(3, 'guest', 'paravex462@vinopub.com', 'guest', 'guest123');
 
 INSERT INTO MANAGER (User_id, PERMISSION)
 VALUES
